@@ -1,0 +1,33 @@
+{
+  "name": "alexaworld-skillserver",
+  "version": "1.0.0",
+  "description": "Node js backend for NodeSkills",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexaWorld/SkillServer.git"
+  },
+  "keywords": [
+    "alexa",
+    "node",
+    "backend",
+    "alexa",
+    "server",
+    "alexa",
+    "backend",
+    "alexa",
+    "skill",
+    "alexa",
+    "skill",
+    "server"
+  ],
+  "author": "Peter Ullrich",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AlexaWorld/SkillServer/issues"
+  },
+  "homepage": "https://github.com/AlexaWorld/SkillServer#readme"
+}
