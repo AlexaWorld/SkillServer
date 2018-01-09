@@ -29,5 +29,10 @@
   "bugs": {
     "url": "https://github.com/AlexaWorld/SkillServer/issues"
   },
-  "homepage": "https://github.com/AlexaWorld/SkillServer#readme"
+  "homepage": "https://github.com/AlexaWorld/SkillServer#readme",
+  "dependencies": {
+    "alexaworld-responsebuilder": "^1.0.1",
+    "express": "^4.16.2",
+    "https": "^1.0.0"
+  }
 }
