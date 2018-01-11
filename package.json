@@ -1,8 +1,8 @@
 {
   "name": "alexaworld-skillserver",
-  "version": "1.0.6",
+  "version": "1.0.13",
   "description": "Node js backend for NodeSkills",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -31,6 +31,7 @@
   },
   "homepage": "https://github.com/AlexaWorld/SkillServer#readme",
   "dependencies": {
+    "alexaworld-nodejs-common": "^1.0.6",
     "express": "^4.16.2",
     "https": "^1.0.0"
   }

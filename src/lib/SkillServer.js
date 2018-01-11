@@ -1,41 +1,16 @@
 // Copyright 2017, Peter Ullrich. dotup IT solutions
 var https = require('https');
 var express = require('express');
-var fs = require('fs');
-var path = require('path');
+var fs = require('alexaworld-nodejs-common').filesystem;
 var bodyParser = require('body-parser');
 var SkillServerConfig = require('./SkillServerConfig');
 
-function readFile(file, filePath) {
-	var full = path.join(filePath, file);
-	return fs.readFileSync(full, 'utf8');
-}
-
-function isValidPath(...args) {
-	var folder = path.join.apply(null, args);
-	try {
-		return fs.statSync(folder).isDirectory();
-	} catch (error) {
-		return false;
-	}
-}
-
-function isValidFile(file, folder) {
-	if (folder)
-		file = path.join(folder, file);
-	try {
-		return fs.statSync(file).isFile();
-	} catch (error) {
-		return false;
-	}
-}
-
 function getCredentials(skillServer) {
-	var certPath = path.join(skillServer.config.RootPath, skillServer.config.SslPath);
+	var certPath = fs.join(skillServer.config.RootPath, skillServer.config.SslPath);
 
-	var key = readFile(skillServer.config.SslPrivateKey, certPath);
-	var cert = readFile(skillServer.config.SslCertificate, certPath);
-	var ca = readFile(skillServer.config.SslChain, certPath);
+	var key = fs.readFile(skillServer.config.SslPrivateKey, certPath);
+	var cert = fs.readFile(skillServer.config.SslCertificate, certPath);
+	var ca = fs.readFile(skillServer.config.SslChain, certPath);
 
 	return {
 		key: key,
@@ -50,11 +25,11 @@ function getRouter() {
 }
 
 function getSkillFromPackage(server, skillName) {
-	var folder = path.join(server.config.RootPath, server.config.SkillPath, skillName);
-	if (!isValidPath(folder))
-		throw new Error(`Path <${fodler}> not found`);
+	var folder = fs.join(server.config.RootPath, server.config.SkillPath, skillName);
+	if (!fs.pathExists(folder))
+		throw new Error(`Path <${folder}> not found`);
 
-	var package = JSON.parse(readFile("package.json", folder)); // fs.readFileSync(path.join(folder, ));
+	var package =fs.readJsonFile("package.json", folder); // fs.readFileSync(path.join(folder, ));
 
 	var skill = {
 		name: package.name,
@@ -68,7 +43,7 @@ function loadSkills(server) {
 	for (const key in server.skills) {
 		if (server.skills.hasOwnProperty(key)) {
 			const item = server.skills[key];
-			var skill = require(path.join(item.path, item.file));
+			var skill = require(fs.join(item.path, item.file));
 			server.router.use("/" + item.name, bodyParser.json());
 			server.router.post("/" + item.name, async function (req, res, callback) {
 				//var json = req.body;
@@ -99,25 +74,26 @@ class SkillServer {
 		if (!skillPath)
 			skillPath = '';
 
-		let folder = path.join(this.config.RootPath, skillPath, skillName);
+		let folders = [
+			fs.join(this.config.RootPath, skillPath, skillName),
+			fs.join(this.config.RootPath, this.config.SkillPath, skillName),
+			fs.join(this.config.RootPath, this.config.SkillPath, skillPath, skillName)
+		];
 
-		if (!isValidPath(folder))
-			folder = path.join(this.config.RootPath, this.config.SkillPath, skillName);
+		let files = [
+			`${skillName}.js`,
+			"index.js"
+		];
 
-		if (!isValidPath(folder))
-			folder = path.join(this.config.RootPath, this.config.SkillPath, skillPath, skillName);
+		var file = fs.getFirstExistingFile(files,folders);
 
-		let fileName = `${skillName}.js`;
-		if (!isValidFile(path.join(folder, fileName)))
-			fileName = "index.js";
-
-		if (!isValidFile(path.join(folder, fileName)))
-			throw new Error(`Skill <${skillName}> not found in <${skillPath}>`);
+		if (!file)
+			throw new Error(`Skill <${skillName}> not found.`);
 
 		var skill = {
 			name: skillName,
-			file: fileName,
-			path: folder
+			file: file.file,
+			path: file.folder
 		}
 
 		this.skills[skill.name] = skill;
