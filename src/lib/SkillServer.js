@@ -4,6 +4,7 @@ var express = require('express');
 var fs = require('alexaworld-nodejs-common').filesystem;
 var bodyParser = require('body-parser');
 var SkillServerConfig = require('./SkillServerConfig');
+const isTypeOf = require('alexaworld-nodejs-common').isTypeOf;
 
 function getCredentials(skillServer) {
 	var certPath = fs.join(skillServer.config.RootPath, skillServer.config.SslPath);
@@ -29,9 +30,14 @@ function getSkillFromPackage(server, skillName) {
 	if (!fs.pathExists(folder))
 		throw new Error(`Path <${folder}> not found`);
 
-	var package =fs.readJsonFile("package.json", folder); // fs.readFileSync(path.join(folder, ));
+	var package = fs.readJsonFile("package.json", folder); // fs.readFileSync(path.join(folder, ));
+
+	let appId = package.AlexaWorld && package.AlexaWorld.APP_ID ? package.AlexaWorld.APP_ID : null;
 
 	var skill = {
+		appId: appId,
+		description: package.description,
+		version: package.version,
 		name: package.name,
 		file: package.main,
 		path: folder
@@ -44,10 +50,16 @@ function loadSkills(server) {
 		if (server.skills.hasOwnProperty(key)) {
 			const item = server.skills[key];
 			var skill = require(fs.join(item.path, item.file));
+			if (isTypeOf(skill, "NodeSkill") && item.appId)
+				skill.AppId = item.appId;
 			server.router.use("/" + item.name, bodyParser.json());
 			server.router.post("/" + item.name, async function (req, res, callback) {
 				//var json = req.body;
 				try {
+					let log = req.body.request.type;
+					if (req.body.request.intent)
+						log += ` (${req.body.request.intent.name})`;
+					console.log(log);
 					var response = await skill.HttpRequestHandler(req.body, res);
 					res.json(response).send();
 				} catch (error) {
@@ -55,6 +67,7 @@ function loadSkills(server) {
 					callback(error);
 				}
 			});
+			console.log(`Skill: ${item.name} | Description: ${item.description} | Version: ${item.version} mapped to "/alexa/${item.name}"`);
 		}
 	}
 }
@@ -85,7 +98,7 @@ class SkillServer {
 			"index.js"
 		];
 
-		var file = fs.getFirstExistingFile(files,folders);
+		var file = fs.getFirstExistingFile(files, folders);
 
 		if (!file)
 			throw new Error(`Skill <${skillName}> not found.`);

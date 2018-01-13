@@ -1,6 +1,6 @@
 {
   "name": "alexaworld-skillserver",
-  "version": "1.0.13",
+  "version": "1.0.23",
   "description": "Node js backend for NodeSkills",
   "main": "src/index.js",
   "scripts": {
@@ -14,13 +14,7 @@
     "alexa",
     "node",
     "backend",
-    "alexa",
-    "server",
-    "alexa",
     "backend",
-    "alexa",
-    "skill",
-    "alexa",
     "skill",
     "server"
   ],
@@ -31,7 +25,7 @@
   },
   "homepage": "https://github.com/AlexaWorld/SkillServer#readme",
   "dependencies": {
-    "alexaworld-nodejs-common": "^1.0.6",
+    "alexaworld-nodejs-common": "^1.0.14",
     "express": "^4.16.2",
     "https": "^1.0.0"
   }
