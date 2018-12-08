@@ -1,3 +1,13 @@
-src/test
-sslcert
+test/
+coverage/
+spec/
+docs/
+scripts/
 .vscode
+.gitignore
+.npmignore
+.travis.yml
+.idea
+.nyc_output
+tsconfig.json
+tslint.json

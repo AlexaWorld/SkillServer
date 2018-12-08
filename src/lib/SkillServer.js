@@ -25,8 +25,8 @@ function getRouter() {
 	return router;
 }
 
-function getSkillFromPackage(server, skillName) {
-	var folder = fs.join(server.config.RootPath, server.config.SkillPath, skillName);
+function getSkillFromPackage(server, skillPath) {
+	var folder = fs.join(server.config.RootPath, skillPath);
 	if (!fs.pathExists(folder))
 		throw new Error(`Path <${folder}> not found`);
 
@@ -60,6 +60,7 @@ function loadSkills(server) {
 					if (req.body.request.intent)
 						log += ` (${req.body.request.intent.name})`;
 					console.log(log);
+					// skill.handler(req.body, res);
 					var response = await skill.HttpRequestHandler(req.body, res);
 					res.json(response).send();
 				} catch (error) {
@@ -87,33 +88,35 @@ class SkillServer {
 		if (!skillPath)
 			skillPath = '';
 
-		let folders = [
-			fs.join(this.config.RootPath, skillPath, skillName),
-			fs.join(this.config.RootPath, this.config.SkillPath, skillName),
-			fs.join(this.config.RootPath, this.config.SkillPath, skillPath, skillName)
-		];
+		const folder = fs.join(this.config.RootPath, skillPath, skillName);
 
-		let files = [
-			`${skillName}.js`,
-			"index.js"
-		];
+		// let files = [
+		// 	`${skillName}.js`,
+		// 	"index.js"
+		// ];
 
-		var file = fs.getFirstExistingFile(files, folders);
+		//var file = fs.getFirstExistingFile(files, folders);
 
-		if (!file)
-			throw new Error(`Skill <${skillName}> not found.`);
+		if (!fs.pathExists(folder))
+			throw new Error(`Path <${folder}> not found`);
+
+		if (!fs.fileExists(file, folder))
+			throw new Error(`Skill <${skillName}> file (${file}) not found.`);
 
 		var skill = {
 			name: skillName,
-			file: file.file,
-			path: file.folder
+			file: file,
+			path: folder
 		}
 
 		this.skills[skill.name] = skill;
 	}
 
-	addSkillFromPackage(skillName) {
-		var skill = getSkillFromPackage(this, skillName);
+	addSkillFromPackage(skillName, skillPath) {
+		if (!skillPath)
+			skillPath = '';
+
+		var skill = getSkillFromPackage(this, skillPath);
 		this.skills[skill.name] = skill;
 	}
 

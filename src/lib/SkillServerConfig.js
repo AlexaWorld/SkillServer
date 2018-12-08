@@ -10,8 +10,8 @@ class SkillServerConfig {
 		this.skillPath = '';
 	}
 
-	set SkillPath(value) { this.skillPath = value; }
-	get SkillPath() { return this.skillPath; }
+	// set SkillPath(value) { this.skillPath = value; }
+	// get SkillPath() { return this.skillPath; }
 	
 	set RootPath(value) { this.rootPath = value; }
 	get RootPath() { return this.rootPath; }
