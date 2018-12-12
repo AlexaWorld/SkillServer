@@ -55,14 +55,22 @@ function loadSkills(server) {
 			server.router.use("/" + item.name, bodyParser.json());
 			server.router.post("/" + item.name, async function (req, res, callback) {
 				//var json = req.body;
+				let log = req.body.request.type;
+				if (req.body.request.intent)
+					log += ` (${req.body.request.intent.name})`;
+				console.log(log);
+
 				try {
-					let log = req.body.request.type;
-					if (req.body.request.intent)
-						log += ` (${req.body.request.intent.name})`;
-					console.log(log);
 					// skill.handler(req.body, res);
-					var response = await skill.HttpRequestHandler(req.body, res);
-					res.json(response).send();
+					if (skill.handler) {
+						var response = skill.handler(req.body, res, (err, result) => {
+							res.json(result).send();
+						});
+					} else {
+
+						var response = await skill.HttpRequestHandler(req.body, res);
+						res.json(response).send();
+					}
 				} catch (error) {
 					res.status = 500;
 					callback(error);
